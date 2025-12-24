@@ -26,7 +26,7 @@ jobs:
 
       - name: Generate SVG
         if: env.HF_USERNAME != ''
-        run: python3 scripts/hf_grass.py --user "$HF_USERNAME" --out assets/hf-grass.svg
+        run: python3 scripts/hf_grass.py --user "$HF_USERNAME" --out assets/hf-grass.svg --show-legend
 
       - name: Commit updated SVG
         if: env.HF_USERNAME != ''
