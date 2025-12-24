@@ -291,8 +291,8 @@ def render_svg(
     )
     parts.append("<style>")
     parts.append(
-        ".title{font:600 13px 'Space Grotesk','IBM Plex Sans',ui-sans-serif,sans-serif;"
-        "fill:#111827;letter-spacing:0.2px}"
+        ".title{font:600 12px -apple-system,BlinkMacSystemFont,'Segoe UI',"
+        "Helvetica,Arial,sans-serif;fill:#0f172a;letter-spacing:0.1px}"
     )
     parts.append(".label{font:12px 'IBM Plex Mono', ui-monospace, monospace;fill:#57606a}")
     parts.append(".legend{font:11px 'IBM Plex Mono', ui-monospace, monospace;fill:#57606a}")
@@ -304,7 +304,7 @@ def render_svg(
 
     if title:
         parts.append(
-            f"<text x=\"{padding_x}\" y=\"16\" class=\"title\">{title}</text>"
+            f"<text x=\"{padding_x}\" y=\"14\" class=\"title\">{title}</text>"
         )
 
     parts.append("<g>")
