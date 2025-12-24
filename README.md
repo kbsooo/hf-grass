@@ -24,7 +24,13 @@ The SVG is generated; run the script or workflow to create it.
 
 ## Example (kbsooo)
 
-![Hugging Face activity for kbsooo](assets/hf-grass.svg)
+Light:
+
+![Hugging Face activity for kbsooo (light)](assets/hf-grass.svg)
+
+Dark:
+
+![Hugging Face activity for kbsooo (dark)](assets/hf-grass-dark.svg)
 
 ## Automation (GitHub Actions)
 
