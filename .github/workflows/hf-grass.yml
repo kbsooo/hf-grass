@@ -1,0 +1,40 @@
+name: Update HF Grass
+
+on:
+  schedule:
+    - cron: "17 2 * * *"
+  workflow_dispatch:
+    inputs:
+      username:
+        description: "Hugging Face username"
+        required: false
+        default: ""
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      HF_USERNAME: ${{ inputs.username || vars.HF_USERNAME }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Generate SVG
+        if: env.HF_USERNAME != ''
+        run: python3 scripts/hf_grass.py --user "$HF_USERNAME" --out assets/hf-grass.svg
+
+      - name: Commit updated SVG
+        if: env.HF_USERNAME != ''
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Update HF grass widget"
+          file_pattern: assets/hf-grass.svg
+
+      - name: Skip (missing HF_USERNAME)
+        if: env.HF_USERNAME == ''
+        run: echo "HF_USERNAME not set; skipping."
