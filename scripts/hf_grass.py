@@ -23,6 +23,28 @@ from urllib.request import Request, urlopen
 API_BASE = "https://huggingface.co/api/recent-activity"  # Same endpoint as the profile feed.
 DEFAULT_COLORS = ["#ebedf0", "#ffe2b3", "#ffc266", "#ff9d00", "#ff7a00"]
 REACTION_COLORS = ["#ebedf0", "#ffd6d6", "#ffb3b3", "#ff7a7a", "#ff4d4d"]
+GITHUB_DARK_COLORS = ["#161b22", "#0e4429", "#006d32", "#26a641", "#39d353"]
+GITHUB_DARK_REACTION_COLORS = [
+    "#161b22",
+    "#3b1d1f",
+    "#5b1e23",
+    "#8b1d26",
+    "#f85149",
+]
+THEMES = {
+    "light": {
+        "background": "#ffffff",
+        "text": "#57606a",
+        "colors": DEFAULT_COLORS,
+        "reaction_colors": REACTION_COLORS,
+    },
+    "github-dark": {
+        "background": "#0d1117",
+        "text": "#8b949e",
+        "colors": GITHUB_DARK_COLORS,
+        "reaction_colors": GITHUB_DARK_REACTION_COLORS,
+    },
+}
 REACTION_TYPES = {"upvote", "like"}
 VALID_ACTIVITY_TYPES = {"all", "discussion", "upvote", "like"}
 
@@ -75,6 +97,12 @@ def parse_args() -> argparse.Namespace:
         "--show-legend",
         action="store_true",
         help="Include a small Less/More legend",
+    )
+    parser.add_argument(
+        "--theme",
+        default="light",
+        choices=sorted(THEMES.keys()),
+        help="Color theme for background and palette",
     )
     parser.add_argument(
         "--tz-offset",
@@ -242,6 +270,8 @@ def render_svg(
     cell_gap: int,
     colors: List[str],
     reaction_colors: List[str],
+    background_color: str,
+    text_color: str,
     title: Optional[str],
     show_legend: bool,
 ) -> str:
@@ -290,17 +320,18 @@ def render_svg(
         f'aria-label="Hugging Face activity for {start_date} to {end_date}">'
     )
     parts.append("<style>")
-    parts.append(".label{font:12px 'IBM Plex Mono', ui-monospace, monospace;fill:#57606a}")
-    parts.append(".legend{font:11px 'IBM Plex Mono', ui-monospace, monospace;fill:#57606a}")
+    parts.append(
+        f".legend{{font:11px 'IBM Plex Mono', ui-monospace, monospace;fill:{text_color}}}"
+    )
     parts.append("</style>")
 
     parts.append(
-        f"<rect width=\"{width}\" height=\"{height}\" fill=\"#ffffff\"/>"
+        f"<rect width=\"{width}\" height=\"{height}\" fill=\"{background_color}\"/>"
     )
 
     if title:
         parts.append(
-            f"<text x=\"{padding_x}\" y=\"14\" class=\"label\">{title}</text>"
+            f"<text x=\"{padding_x}\" y=\"14\" class=\"legend\">{title}</text>"
         )
 
     parts.append("<g>")
@@ -413,6 +444,11 @@ def main() -> int:
 
     stats = aggregate_stats(items, start_date, today, tz)
 
+    theme = THEMES.get(args.theme)
+    if not theme:
+        print(f"Unsupported theme: {args.theme}", file=sys.stderr)
+        return 2
+
     title = args.title or f"Hugging Face activity ({user})"
     svg = render_svg(
         stats=stats,
@@ -421,8 +457,10 @@ def main() -> int:
         week_start=args.week_start,
         cell_size=args.cell_size,
         cell_gap=args.cell_gap,
-        colors=DEFAULT_COLORS,
-        reaction_colors=REACTION_COLORS,
+        colors=theme["colors"],
+        reaction_colors=theme["reaction_colors"],
+        background_color=theme["background"],
+        text_color=theme["text"],
         title=title,
         show_legend=args.show_legend,
     )
@@ -436,6 +474,7 @@ def main() -> int:
 
     if args.plot:
         plot_path = os.path.splitext(out_path)[0] + "-preview.png"
+        counts = {date: int(stat["count"]) for date, stat in stats.items()}
         maybe_save_plot(counts, plot_path)
 
     total = sum(int(stat["count"]) for stat in stats.values())

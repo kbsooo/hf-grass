@@ -38,6 +38,7 @@ For public repos, this workflow is free on GitHub-hosted runners.
 - The generator uses `https://huggingface.co/api/recent-activity`.
 - Use `--activity-type` to filter: `all`, `discussion`, `upvote`, or `like`.
 - Add `--show-legend` for a Less/More legend.
+- Use `--theme` to switch palette/background: `light` (default) or `github-dark`.
 - Add `--plot` to save a preview PNG (requires `matplotlib`).
 - Use `--tz-offset` to shift daily buckets (e.g., `9` for KST).
 - Days with only upvotes/likes use a red palette.
