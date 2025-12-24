@@ -15,13 +15,15 @@ import math
 import os
 import sys
 import time
-from typing import Dict, Iterable, List, Optional, Tuple
+from typing import Dict, Iterable, List, Optional
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
 
 API_BASE = "https://huggingface.co/api/recent-activity"  # Same endpoint as the profile feed.
 DEFAULT_COLORS = ["#ebedf0", "#ffe2b3", "#ffc266", "#ff9d00", "#ff7a00"]
+REACTION_COLORS = ["#ebedf0", "#ffd6d6", "#ffb3b3", "#ff7a7a", "#ff4d4d"]
+REACTION_TYPES = {"upvote", "like"}
 VALID_ACTIVITY_TYPES = {"all", "discussion", "upvote", "like"}
 
 
@@ -188,13 +190,13 @@ def collect_activity(
     return items
 
 
-def aggregate_counts(
+def aggregate_stats(
     items: Iterable[Dict[str, object]],
     start_date: dt.date,
     end_date: dt.date,
     tz: dt.tzinfo,
-) -> Dict[dt.date, int]:
-    counts: Dict[dt.date, int] = {}
+) -> Dict[dt.date, Dict[str, object]]:
+    stats: Dict[dt.date, Dict[str, object]] = {}
     for entry in items:
         time_value = entry.get("time")
         if not time_value:
@@ -202,8 +204,13 @@ def aggregate_counts(
         date_value = parse_time(str(time_value), tz)
         if date_value < start_date or date_value > end_date:
             continue
-        counts[date_value] = counts.get(date_value, 0) + 1
-    return counts
+        if date_value not in stats:
+            stats[date_value] = {"count": 0, "types": set()}
+        stats[date_value]["count"] += 1
+        event_type = entry.get("type")
+        if event_type:
+            stats[date_value]["types"].add(str(event_type))
+    return stats
 
 
 #%%
@@ -227,13 +234,14 @@ def color_index(count: int, max_count: int, levels: int) -> int:
 
 
 def render_svg(
-    counts: Dict[dt.date, int],
+    stats: Dict[dt.date, Dict[str, object]],
     start_date: dt.date,
     end_date: dt.date,
     week_start: str,
     cell_size: int,
     cell_gap: int,
     colors: List[str],
+    reaction_colors: List[str],
     title: Optional[str],
     show_legend: bool,
 ) -> str:
@@ -243,12 +251,24 @@ def render_svg(
 
     assert weeks > 0, "Weeks must be positive"
     assert len(colors) >= 2, "Palette must contain at least 2 colors"
+    assert len(reaction_colors) >= 2, "Reaction palette must contain at least 2 colors"
 
-    max_count = max(counts.values(), default=0)
+    def is_reaction_only(stat: Dict[str, object]) -> bool:
+        types = stat.get("types", set())
+        return bool(types) and set(types).issubset(REACTION_TYPES)
+
+    max_default = max(
+        (int(stat["count"]) for stat in stats.values() if not is_reaction_only(stat)),
+        default=0,
+    )
+    max_reaction = max(
+        (int(stat["count"]) for stat in stats.values() if is_reaction_only(stat)),
+        default=0,
+    )
 
     padding_x = 12
     padding_top = 20 if title else 10
-    padding_bottom = 22 if show_legend else 10
+    padding_bottom = 34 if show_legend else 10
 
     grid_width = weeks * (cell_size + cell_gap) - cell_gap
     grid_height = 7 * (cell_size + cell_gap) - cell_gap
@@ -289,8 +309,17 @@ def render_svg(
         week = day_offset // 7
         row = day_index(current)
 
-        count = counts.get(current, 0) if start_date <= current <= end_date else 0
-        color = colors[color_index(count, max_count, len(colors))]
+        stat = stats.get(current)
+        if stat and start_date <= current <= end_date:
+            count = int(stat["count"])
+            reaction_only = is_reaction_only(stat)
+        else:
+            count = 0
+            reaction_only = False
+
+        palette = reaction_colors if reaction_only else colors
+        max_count = max_reaction if reaction_only else max_default
+        color = palette[color_index(count, max_count, len(palette))]
 
         x = padding_x + week * (cell_size + cell_gap)
         y = padding_top + row * (cell_size + cell_gap)
@@ -382,17 +411,18 @@ def main() -> int:
         sleep_seconds=args.sleep,
     )
 
-    counts = aggregate_counts(items, start_date, today, tz)
+    stats = aggregate_stats(items, start_date, today, tz)
 
     title = args.title or f"Hugging Face activity ({user})"
     svg = render_svg(
-        counts=counts,
+        stats=stats,
         start_date=start_date,
         end_date=today,
         week_start=args.week_start,
         cell_size=args.cell_size,
         cell_gap=args.cell_gap,
         colors=DEFAULT_COLORS,
+        reaction_colors=REACTION_COLORS,
         title=title,
         show_legend=args.show_legend,
     )
@@ -408,7 +438,7 @@ def main() -> int:
         plot_path = os.path.splitext(out_path)[0] + "-preview.png"
         maybe_save_plot(counts, plot_path)
 
-    total = sum(counts.values())
+    total = sum(int(stat["count"]) for stat in stats.values())
     print(f"Saved {out_path} with {total} activities")
     return 0
 

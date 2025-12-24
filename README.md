@@ -40,3 +40,4 @@ For public repos, this workflow is free on GitHub-hosted runners.
 - Add `--show-legend` for a Less/More legend.
 - Add `--plot` to save a preview PNG (requires `matplotlib`).
 - Use `--tz-offset` to shift daily buckets (e.g., `9` for KST).
+- Days with only upvotes/likes use a red palette.
