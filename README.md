@@ -8,7 +8,7 @@ Generate a Hugging Face activity heatmap SVG you can embed in a GitHub README.
 python3 scripts/hf_grass.py --user YOUR_HF_USERNAME --out assets/hf-grass.svg
 ```
 
-KST 기준으로 날짜가 바뀌는 시점에 맞추려면:
+To align daily buckets with KST midnight:
 
 ```bash
 python3 scripts/hf_grass.py --user YOUR_HF_USERNAME --out assets/hf-grass.svg --tz-offset 9
