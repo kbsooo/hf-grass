@@ -16,10 +16,16 @@ python3 scripts/hf_grass.py --user YOUR_HF_USERNAME --out assets/hf-grass.svg
 
 The SVG is generated; run the script or workflow to create it.
 
+## Example (kbsooo)
+
+![Hugging Face activity for kbsooo](assets/hf-grass.svg)
+
 ## Automation (GitHub Actions)
 
 1. Set a repository variable named `HF_USERNAME`.
 2. Run the workflow in `.github/workflows/hf-grass.yml` (or wait for the schedule).
+
+For public repos, this workflow is free on GitHub-hosted runners.
 
 ## Notes
 
