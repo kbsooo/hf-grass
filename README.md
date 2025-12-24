@@ -22,6 +22,17 @@ python3 scripts/hf_grass.py --user YOUR_HF_USERNAME --out assets/hf-grass.svg --
 
 The SVG is generated; run the script or workflow to create it.
 
+## Profile README (minimal)
+
+1. Fork this repo (or copy the workflow + script into a repo you own).
+2. Set the repo variable `HF_USERNAME`.
+3. Embed the raw SVG(s) in your GitHub profile README:
+
+```md
+![HF activity](https://raw.githubusercontent.com/YOUR_GITHUB_ID/hf-grass/main/assets/hf-grass.svg#gh-light-mode-only)
+![HF activity](https://raw.githubusercontent.com/YOUR_GITHUB_ID/hf-grass/main/assets/hf-grass-dark.svg#gh-dark-mode-only)
+```
+
 ## Example (kbsooo)
 
 Light:
