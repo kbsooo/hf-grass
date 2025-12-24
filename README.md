@@ -8,6 +8,12 @@ Generate a Hugging Face activity heatmap SVG you can embed in a GitHub README.
 python3 scripts/hf_grass.py --user YOUR_HF_USERNAME --out assets/hf-grass.svg
 ```
 
+KST 기준으로 날짜가 바뀌는 시점에 맞추려면:
+
+```bash
+python3 scripts/hf_grass.py --user YOUR_HF_USERNAME --out assets/hf-grass.svg --tz-offset 9
+```
+
 ## Embed in README
 
 ```md
@@ -33,3 +39,4 @@ For public repos, this workflow is free on GitHub-hosted runners.
 - Use `--activity-type` to filter: `all`, `discussion`, `upvote`, or `like`.
 - Add `--show-legend` for a Less/More legend.
 - Add `--plot` to save a preview PNG (requires `matplotlib`).
+- Use `--tz-offset` to shift daily buckets (e.g., `9` for KST).

@@ -75,6 +75,12 @@ def parse_args() -> argparse.Namespace:
         help="Include a small Less/More legend",
     )
     parser.add_argument(
+        "--tz-offset",
+        type=int,
+        default=0,
+        help="Timezone offset hours from UTC for daily buckets (e.g., 9 for KST)",
+    )
+    parser.add_argument(
         "--plot",
         action="store_true",
         help="Save a matplotlib preview plot (optional dependency)",
@@ -109,11 +115,14 @@ def fetch_recent_activity(
     return json.loads(payload)
 
 
-def parse_time(value: str) -> dt.date:
+def parse_time(value: str, tz: dt.tzinfo) -> dt.date:
     # ISO 8601 with Z suffix is the common case in the activity feed.
     if value.endswith("Z"):
         value = value[:-1] + "+00:00"
-    return dt.datetime.fromisoformat(value).date()
+    timestamp = dt.datetime.fromisoformat(value)
+    if timestamp.tzinfo is None:
+        timestamp = timestamp.replace(tzinfo=dt.timezone.utc)
+    return timestamp.astimezone(tz).date()
 
 
 def dedupe_key(item: Dict[str, object]) -> str:
@@ -135,6 +144,7 @@ def collect_activity(
     user: str,
     activity_type: str,
     days: int,
+    tz: dt.tzinfo,
     max_requests: int,
     sleep_seconds: float,
 ) -> List[Dict[str, object]]:
@@ -168,7 +178,7 @@ def collect_activity(
 
         oldest_time = batch[-1].get("time")
         if oldest_time:
-            oldest_date = parse_time(str(oldest_time))
+            oldest_date = parse_time(str(oldest_time), tz)
             if oldest_date < earliest_date:
                 break
 
@@ -182,13 +192,14 @@ def aggregate_counts(
     items: Iterable[Dict[str, object]],
     start_date: dt.date,
     end_date: dt.date,
+    tz: dt.tzinfo,
 ) -> Dict[dt.date, int]:
     counts: Dict[dt.date, int] = {}
     for entry in items:
         time_value = entry.get("time")
         if not time_value:
             continue
-        date_value = parse_time(str(time_value))
+        date_value = parse_time(str(time_value), tz)
         if date_value < start_date or date_value > end_date:
             continue
         counts[date_value] = counts.get(date_value, 0) + 1
@@ -358,18 +369,20 @@ def main() -> int:
         print(f"Unsupported activity type: {args.activity_type}", file=sys.stderr)
         return 2
 
-    today = dt.datetime.now(dt.timezone.utc).date()
+    tz = dt.timezone(dt.timedelta(hours=args.tz_offset))
+    today = dt.datetime.now(tz).date()
     start_date = today - dt.timedelta(days=args.days - 1)
 
     items = collect_activity(
         user=user,
         activity_type=args.activity_type,
         days=args.days,
+        tz=tz,
         max_requests=args.max_requests,
         sleep_seconds=args.sleep,
     )
 
-    counts = aggregate_counts(items, start_date, today)
+    counts = aggregate_counts(items, start_date, today, tz)
 
     title = args.title or f"Hugging Face activity ({user})"
     svg = render_svg(

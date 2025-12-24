@@ -2,7 +2,7 @@ name: Update HF Grass
 
 on:
   schedule:
-    - cron: "17 2 * * *"
+    - cron: "0 15 * * *" # KST 00:00
   workflow_dispatch:
     inputs:
       username:
@@ -26,7 +26,7 @@ jobs:
 
       - name: Generate SVG
         if: env.HF_USERNAME != ''
-        run: python3 scripts/hf_grass.py --user "$HF_USERNAME" --out assets/hf-grass.svg --show-legend
+        run: python3 scripts/hf_grass.py --user "$HF_USERNAME" --out assets/hf-grass.svg --show-legend --tz-offset 9
 
       - name: Commit updated SVG
         if: env.HF_USERNAME != ''

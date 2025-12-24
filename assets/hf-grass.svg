@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg width="711" height="131" viewBox="0 0 711 131" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hugging Face activity for 2024-12-25 to 2025-12-24">
+<svg width="711" height="131" viewBox="0 0 711 131" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hugging Face activity for 2024-12-26 to 2025-12-25">
 <style>
 .label{font:12px 'IBM Plex Mono', ui-monospace, monospace;fill:#57606a}
 .legend{font:11px 'IBM Plex Mono', ui-monospace, monospace;fill:#57606a}
@@ -371,10 +371,11 @@
 <rect x="675" y="72" width="11" height="11" rx="2" ry="2" fill="#ebedf0"><title>2025-12-18: 0 activity</title></rect>
 <rect x="675" y="85" width="11" height="11" rx="2" ry="2" fill="#ebedf0"><title>2025-12-19: 0 activity</title></rect>
 <rect x="675" y="98" width="11" height="11" rx="2" ry="2" fill="#ebedf0"><title>2025-12-20: 0 activity</title></rect>
-<rect x="688" y="20" width="11" height="11" rx="2" ry="2" fill="#ffc266"><title>2025-12-21: 1 activity</title></rect>
-<rect x="688" y="33" width="11" height="11" rx="2" ry="2" fill="#ebedf0"><title>2025-12-22: 0 activity</title></rect>
+<rect x="688" y="20" width="11" height="11" rx="2" ry="2" fill="#ebedf0"><title>2025-12-21: 0 activity</title></rect>
+<rect x="688" y="33" width="11" height="11" rx="2" ry="2" fill="#ffc266"><title>2025-12-22: 1 activity</title></rect>
 <rect x="688" y="46" width="11" height="11" rx="2" ry="2" fill="#ebedf0"><title>2025-12-23: 0 activity</title></rect>
 <rect x="688" y="59" width="11" height="11" rx="2" ry="2" fill="#ebedf0"><title>2025-12-24: 0 activity</title></rect>
+<rect x="688" y="72" width="11" height="11" rx="2" ry="2" fill="#ebedf0"><title>2025-12-25: 0 activity</title></rect>
 </g>
 <text x="558" y="132" class="legend">Less</text>
 <rect x="594" y="123" width="11" height="11" rx="2" ry="2" fill="#ebedf0"/>
